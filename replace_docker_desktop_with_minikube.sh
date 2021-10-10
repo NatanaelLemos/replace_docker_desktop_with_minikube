@@ -64,6 +64,10 @@ echo "Configuring minikube"
 minikube config set cpus $CPU_COUNT
 minikube config set memory $RAM
 
+####TODO:######
+####TODO:######
+####TODO:######
+####TODO:######
 echo "###############################################"
 echo "Starting kubernetes. This might take a while..."
 minikube start --driver=hyperkit --container-runtime=docker
