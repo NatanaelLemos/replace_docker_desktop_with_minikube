@@ -45,6 +45,7 @@ hyperkit -v
 echo "#####################"
 echo "Installing docker cli"
 brew install docker
+ln -sf $(brew --prefix docker)/bin/docker /usr/local/bin/docker
 
 echo "#############################"
 echo "Verifying docker installation"
@@ -64,12 +65,9 @@ echo "Configuring minikube"
 minikube config set cpus $CPU_COUNT
 minikube config set memory $RAM
 
-####TODO:######
-####TODO:######
-####TODO:######
-####TODO:######
 echo "###############################################"
 echo "Starting kubernetes. This might take a while..."
+minikube delete --all --purge
 minikube start --driver=hyperkit --container-runtime=docker
 
 echo "##########################"
@@ -83,3 +81,16 @@ eval $(minikube docker-env)
 echo "###################################"
 echo "Verifying that docker is accessible"
 docker info
+
+echo "#########################"
+echo "Installing docker-compose"
+brew install docker-compose
+
+echo "#################"
+echo "Exposing minikube"
+minikube addons enable ingress
+minikube addons enable ingress-dns
+minikube addons enable metallb
+
+minikube ip
+curl $(minikube ip)
