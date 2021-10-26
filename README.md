@@ -8,7 +8,7 @@ Script for MacOS to remove Docker Desktop and replace it with Minikube (because 
 
 ## Requirements
 
-You need Homebrew [download here](https://brew.sh/) to run this script.
+You need Homebrew ([download here](https://brew.sh/)) to run this script.
 
 ## Installation
 
