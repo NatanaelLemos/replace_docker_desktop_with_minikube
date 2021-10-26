@@ -92,6 +92,8 @@ eval $(minikube docker-env)
 BREW_OUTPUT=$(more ~/.bash_profile | grep "eval \$(minikube docker-env)")
 if [[ $BREW_OUTPUT != *"minikube docker-env"* ]]
 then
+    echo "#####################################"
+    echo "Linking docker to your bash profile"
     echo "eval \$(minikube docker-env)" >> ~/.bash_profile
 fi
 
@@ -102,6 +104,8 @@ then
     BREW_OUTPUT=$(more ~/.zshrc | grep "eval \$(minikube docker-env)")
     if [[ $BREW_OUTPUT != *"minikube docker-env"* ]]
     then
+        echo "#####################################"
+        echo "Linking docker to your zsh profile"
         echo "eval \$(minikube docker-env)" >> ~/.zshrc
     fi
 fi
@@ -110,4 +114,6 @@ fi
 echo "`minikube ip` docker.local" | sudo tee -a /etc/hosts > /dev/null
 
 # Test
+echo "#####################################"
+echo "Testing installation"
 docker run hello-world
