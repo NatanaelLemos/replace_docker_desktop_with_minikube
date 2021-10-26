@@ -22,75 +22,92 @@ if [[ ! $REPLY =~ ^[Yy]$ ]]
 then
     echo "exiting"
     exit 1
-else
-    echo "Starting the script..."
 fi
 
-#------------------------------------------------
+##------------------------------------------------
+echo "#####################################"
+echo "Removing all current docker images"
+docker rm -f $(docker ps -q) || true
+docker container rm -f $(docker container ls -qa) || true
+docker image rm $(docker image ls -qa) || true
 
-echo "###########################"
-echo "Uninstalling docker desktop"
-brew uninstall --cask --force docker
-rm -rf ~/.kube
+## If docker-desktop is installed, uninstall it.
+BREW_OUTPUT=$(brew info --cask docker)
+if [[ $BREW_OUTPUT != *"ot installed"* ]]
+then
+    echo "#####################################"
+    echo "Uninstalling docker desktop"
+    brew uninstall --cask --force docker
+    rm -rf ~/.kube
+    rm -rf /usr/local/bin/docker
+fi
 
-echo "###########################"
-echo "Installing hyperkit drivers"
-brew install hyperkit
-ln -sf $(brew --prefix hyperkit)/bin/hyperkit /usr/local/bin/hyperkit
+## If hyperkit is not installed, install it.
+BREW_OUTPUT=$(brew info hyperkit)
+if [[ $BREW_OUTPUT == *"ot installed"* ]]
+then
+    echo "#####################################"
+    echo "Installing Hyperkit"
+    brew install hyperkit
+fi
 
-echo "##############################"
-echo "Checking hyperkit installation"
-hyperkit -v
+## If MiniKube is not installed, install it.
+BREW_OUTPUT=$(brew info minikube)
+if [[ $BREW_OUTPUT == *"ot installed"* ]]
+then
+    echo "#####################################"
+    echo "Installing MiniKube"
+    brew install minikube
+fi
 
-echo "#####################"
-echo "Installing docker cli"
-brew install docker
-ln -sf $(brew --prefix docker)/bin/docker /usr/local/bin/docker
+## If Docker is not installed, install it.
+BREW_OUTPUT=$(brew info docker)
+if [[ $BREW_OUTPUT == *"ot installed"* ]]
+then
+    echo "#####################################"
+    echo "Installing Docker CLI"
+    brew install docker
+    ln -sf $(brew --prefix docker)/bin/docker /usr/local/bin/docker
+fi
 
-echo "#############################"
-echo "Verifying docker installation"
-docker info
+## If docker-compose is not installed, install it.
+BREW_OUTPUT=$(brew info docker-compose)
+if [[ $BREW_OUTPUT == *"ot installed"* ]]
+then
+    echo "#####################################"
+    echo "Installing docker-compose"
+    brew install docker-compose
+fi
 
-echo "##################"
-echo "Installing kubectl"
-brew install kubectl
-brew link kubernetes-cli
-
-echo "###################"
-echo "Installing minikube"
-brew install minikube
-
-echo "####################"
-echo "Configuring minikube"
+echo "#####################################"
+echo "Starting MiniKube"
 minikube config set cpus $CPU_COUNT
 minikube config set memory $RAM
+minikube start
 
-echo "###############################################"
-echo "Starting kubernetes. This might take a while..."
-minikube delete --all --purge
-minikube start --driver=hyperkit --container-runtime=docker
-
-echo "##########################"
-echo "Verifying kubernetes state"
-minikube kubectl get nodes
-
-echo "############################################"
-echo "Adding minikube to the environment variables"
+# Tell Docker CLI to talk to minikube's VM
 eval $(minikube docker-env)
 
-echo "###################################"
-echo "Verifying that docker is accessible"
-docker info
+# Add the docker link to bash initialization
+BREW_OUTPUT=$(more ~/.bash_profile | grep "eval \$(minikube docker-env)")
+if [[ $BREW_OUTPUT != *"minikube docker-env"* ]]
+then
+    echo "eval \$(minikube docker-env)" >> ~/.bash_profile
+fi
 
-echo "#########################"
-echo "Installing docker-compose"
-brew install docker-compose
+# Add the docker link to zsh initialization
+BREW_OUTPUT=$(which zsh)
+if [[ $BREW_OUTPUT == *"/bin/zsh"* ]]
+then
+    BREW_OUTPUT=$(more ~/.zshrc | grep "eval \$(minikube docker-env)")
+    if [[ $BREW_OUTPUT != *"minikube docker-env"* ]]
+    then
+        echo "eval \$(minikube docker-env)" >> ~/.zshrc
+    fi
+fi
 
-echo "#################"
-echo "Exposing minikube"
-minikube addons enable ingress
-minikube addons enable ingress-dns
-minikube addons enable metallb
+# Save IP to a hostname
+echo "`minikube ip` docker.local" | sudo tee -a /etc/hosts > /dev/null
 
-minikube ip
-curl $(minikube ip)
+# Test
+docker run hello-world
