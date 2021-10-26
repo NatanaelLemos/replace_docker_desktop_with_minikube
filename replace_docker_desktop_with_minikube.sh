@@ -117,3 +117,7 @@ echo "`minikube ip` docker.local" | sudo tee -a /etc/hosts > /dev/null
 echo "#####################################"
 echo "Testing installation"
 docker run hello-world
+
+echo "#####################################"
+echo "Docker running on IP:"
+minikube service list | grep "http://" | awk '{ print $6 }' | awk -F ":" '{ print $1":"$2 }' | tail -n1
