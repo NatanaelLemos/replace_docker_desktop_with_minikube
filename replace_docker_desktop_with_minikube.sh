@@ -120,4 +120,4 @@ docker run hello-world
 
 echo "#####################################"
 echo "Docker running on IP:"
-minikube service list | grep "http://" | awk '{ print $6 }' | awk -F ":" '{ print $1":"$2 }' | tail -n1
+minikube ip
