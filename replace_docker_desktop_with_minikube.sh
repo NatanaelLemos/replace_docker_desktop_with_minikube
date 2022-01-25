@@ -97,6 +97,9 @@ echo "eval \$(minikube docker-env)" >> ~/.zshrc
 # Save IP to a hostname
 echo "`minikube ip` docker.local" | sudo tee -a /etc/hosts > /dev/null
 
+# Fix docker-compose access config
+echo "{\n   \"credsDstore\": \"desktop\"\n}" > ~/.docker/config.json
+
 # Test
 echo "#####################################"
 echo "Testing installation"
