@@ -89,26 +89,10 @@ minikube start
 eval $(minikube docker-env)
 
 # Add the docker link to bash initialization
-BREW_OUTPUT=$(more ~/.bash_profile | grep "eval \$(minikube docker-env)")
-if [[ $BREW_OUTPUT != *"minikube docker-env"* ]]
-then
-    echo "#####################################"
-    echo "Linking docker to your bash profile"
-    echo "eval \$(minikube docker-env)" >> ~/.bash_profile
-fi
+echo "eval \$(minikube docker-env)" >> ~/.bash_profile
 
 # Add the docker link to zsh initialization
-BREW_OUTPUT=$(which zsh)
-if [[ $BREW_OUTPUT == *"/bin/zsh"* ]]
-then
-    BREW_OUTPUT=$(more ~/.zshrc | grep "eval \$(minikube docker-env)")
-    if [[ $BREW_OUTPUT != *"minikube docker-env"* ]]
-    then
-        echo "#####################################"
-        echo "Linking docker to your zsh profile"
-        echo "eval \$(minikube docker-env)" >> ~/.zshrc
-    fi
-fi
+echo "eval \$(minikube docker-env)" >> ~/.zshrc
 
 # Save IP to a hostname
 echo "`minikube ip` docker.local" | sudo tee -a /etc/hosts > /dev/null
