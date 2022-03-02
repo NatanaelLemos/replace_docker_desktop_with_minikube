@@ -1,3 +1,5 @@
+#!/bin/sh
+
 CPU_COUNT=$1
 RAM=$2
 
